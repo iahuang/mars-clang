@@ -6,8 +6,9 @@ Enables compilation from C/C++ to MIPS code that can run in [MARS](http://course
 
 ## Usage
 
+Clang must be installed on your system for `mars-clang` to work. If the command `clang --version` works (as exactly written), then `mars-clang` will be able to use your distribution of Clang. `mars-clang` has been tested on Python 3.10.
 ```
-python3 mips-clang.py [input_file] > build.mips
+python3 mars-clang.py [input_file] > build.mips
 ```
 
 ## Example Program
