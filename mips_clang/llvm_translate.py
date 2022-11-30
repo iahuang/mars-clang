@@ -114,8 +114,8 @@ class _LLVMTranslator:
                 instruction_has_output = True
             elif iname == "store":
                 stored_value = instruction.args[0]
-                store_to = instruction.args[1]
-                assert store_to.is_register()
+                dest = instruction.args[1]
+                assert dest.is_register()
 
                 # $t1 contains the value being stored
                 # $t2 contains the address being stored to (the pointer contained inside the target
@@ -127,10 +127,19 @@ class _LLVMTranslator:
                     output.append("lw $t1,{}($sp)".format(
                         register_sp_offsets[stored_value.get_register_name()])
                     )
-                output.append("lw $t2,{}($sp)".format(
-                    register_sp_offsets[store_to.get_register_name()])
-                )
-                output.append("sw $t1,($t2)".format())
+
+                dest_type = dest.get_type()
+                assert 1 <= dest_type.pointer <= 2
+
+                if dest_type.pointer == 1:
+                    output.append("lw $t2,{}($sp)".format(
+                        register_sp_offsets[dest.get_register_name()])
+                    )
+                    output.append("sw $t1,($t2)")
+                else:
+                    output.append("sw $t1,{}($sp)".format(
+                        register_sp_offsets[dest.get_register_name()]
+                    ))
             elif iname == "load":
                 target = instruction.args[0]
                 output.append("lw $t7,{}($sp)".format(
@@ -138,6 +147,22 @@ class _LLVMTranslator:
                 ))
 
                 instruction_has_output = True
+            elif iname == "getelementptr":
+                base_addr_register = instruction.args[0]
+                offset = instruction.args[1]
+
+                output.append("lw $t7,{}($sp)".format(
+                    register_sp_offsets[base_addr_register.get_register_name()]
+                ))
+                if offset.is_constant():
+                    output.append("addiu $t7,$t7,{}".format(offset.get_constant_value()))
+                else:
+                    output.append("lw $t1,{}($sp)".format(
+                        register_sp_offsets[offset.get_register_name()]
+                    ))
+                    output.append("addu $t7,$t7,$t1")
+                instruction_has_output = True
+
             elif iname == "ret":
                 # free allocated stack space
                 output.append("addiu $sp,$sp,{}".format(stackframe_size))
