@@ -1,0 +1,9 @@
+|
+=
+| sp + n
+|  ...
+| sp + 8
+| sp + 4
+| sp (return address)
+
+in this figure, the stack grows downwards.
