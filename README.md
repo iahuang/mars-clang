@@ -27,3 +27,19 @@ int main() {
     return 0;
 }
 ```
+
+## Support Table
+
+The way `mars-clang` works is by using `clang` to compile a C/C++ program to [LLVM IR](https://llvm.org/docs/LangRef.html#introduction) code and then translating that code into MIPS line-by-line. Hence, only some LLVM IR instructions are currently supported.
+
+| LLVM Instruction | MIPS Translation Support |
+|------------------|--------------------------|
+| `alloca`         | **Full support**         |
+| `store`          | **Partial support**      |
+| `load`           | **Partial support**      |
+| `getelementptr`  | **Partial support**      |
+| `ret`            | **Incomplete support**   |
+
+Note that "Partial support" means that while the entire functionality of the LLVM IR instruction may not be supported, most of or all of the cases in which the instruction is used in *LLMV-generated* code are supported. 
+
+"Incomplete support" means that the presence of the instruction will not cause `mars-clang` to crash, but the functionality of the instruction is incomplete.
